@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DOM性能优化 - 认识DocumentFragment</title>
+</head>
+<body>
+  <script>
+    /*js常见的创建dom节点的方法有
+    * createElement() 创建一个元素节点 => 接收参数为string类型的nodename
+    * createTextNode() 创建一个文本节点 => 接收参数为string类型的text内容
+    * createAttribute() 创建一个属性节点 => 接收参数为string类型的属性名称
+    * createComment() 创建一个注释节点 => 接收参数为string类型的注释文本
+    */
+
+    // 现在有个要求，将100个p标签插入body中，需要考虑性能问题
+    
+    // 1.最low的做法: low在多次重复创建节点，插入节点，性能消耗非常大
+    for(let i = 0; i<100;i++){
+      let elP = document.createElement('p');
+      let elText = document.createTextNode(i);
+      elP.appendChild(elText);
+      document.body.appendChild(elP);
+    }
+    
+    // 2. 好一点的做法： 减少DOM操作，只进行一次DOM操作，一次页面重绘
+     let lis = '', ul = document.createElement('ul');
+     // 以字符串形式生成li
+     for(let i = 0; i < 100; i++){
+        lis += '<li>第' + i + '行</li>';
+     }
+     ul.innerHTML = lis; 
+     document.body.appendChild(ul); //操作dom，把ul插入body中
+
+
+     // 3. 动脑筋的做法：只有一次DOM操作，
+     let myFrag = document.createDocumentFragment(); 
+     for(let i = 0; i < 100; i++){
+        let elP = document.createElement('p');
+        let elText = document.createTextNode(i);
+        elP.appendChild(elText);
+        myFrag.appendChild(elP);  //把所有新的节点添加在其中
+     }
+     document.body.appendChild(myFrag);  //最后把文档碎片的内容一次性添加到dom树里
+
+
+// W3Cschool给到的解释：
+
+// DocumentFragment节点不属于文档树，继承的parentNode属性总是null。它有一个很实用的特点，当请求把一个DocumentFragment节点插入文档树时，插入的不是DocumentFragment自身，而是它的所有子孙节点。这个特性使得DocumentFragment成了占位符，暂时存放那些一次插入文档的节点。它还有利于实现文档的剪切、复制和粘贴操作。 
+// 另外，当需要添加多个dom元素时，如果先将这些元素添加到DocumentFragment中，再统一将DocumentFragment添加到页面，会减少页面渲染dom的次数，效率会明显提升。
+// 还有一个很重要的特性是，如果使用appendChild方法将原dom树中的节点添加到DocumentFragment中时，会删除原来的节点。 
+
+
+// MDN给到的解释：
+
+// DocumentFragments 是DOM节点。它们不是主DOM树的一部分。通常的用例是创建文档片段，将元素附加到文档片段，然后将文档片段附加到DOM树。在DOM树中，文档片段被其所有的子元素所代替。
+
+// 因为文档片段存在于内存中，并不在DOM树中，所以将子元素插入到文档片段时不会引起页面回流(reflow)(对元素位置和几何上的计算)。因此，使用文档片段document fragments 通常会起到优化性能的作用(better performance)。
+
+  </script>
+</body>
+</html>
