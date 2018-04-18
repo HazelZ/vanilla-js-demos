@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ES6作用域</title>
+</head>
+<body>
+  <h1>Who is 'this'?</h1>
+  <pre>
+    class Animal {
+      ani(){
+        setTimeout(() => {
+          console.log(this);
+        },1000)
+      }
+    }
+  </pre>
+  <p>well, <i>this</i> turns out to be <i>Animal</i>,why?</p>
+  <script>
+    class Animal {
+      ani(){
+        console.log(this);
+        setTimeout(() => {
+          console.log(this);
+        },1000)
+      }
+    }
+    new Animal().ani(); //Animal
+
+  </script>
+</body>
+</html>
